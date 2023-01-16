@@ -1,3 +1,5 @@
+import numpy as np
+
 import keras_custom.prelude
 import keras_tuner
 from load_data import load_dataset
@@ -22,14 +24,11 @@ if __name__ == "__main__":
     model_builder = custom_builder(**ns)
     tuner = keras_tuner.Hyperband(model_builder, objective="val_loss")
     l2_schedule_callback = CustomCallback()
-    model_checkpoint_callback = callbacks.ModelCheckpoint(
-        filepath="best_valid",
-        save_weights_only=True,
-        monitor='val_loss',
-        mode='min',
-        save_best_only=True)
     hp = tuner.get_best_hyperparameters()[0]
     hp.values['learning_rate'] = 3e-6
     model = model_builder(hp)
-    model.fit(data, validation_data=val_data, epochs=300, verbose=1, callbacks=[l2_schedule_callback, model_checkpoint_callback])
-    model.save("best_model")
+    model.load_weights("./best_valid")
+    predict = model.predict(val_data)
+    ground = [x[1][0, :] for x in val_data.as_numpy_iterator()]
+    np.savetxt("gt.npy", np.asarray(ground))
+    np.savetxt("pd.npy", predict)
