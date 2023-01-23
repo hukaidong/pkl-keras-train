@@ -20,12 +20,15 @@ def custom_builder(nframe=18, nagent=30, nhead=8, is_natural=False, debug_dict=N
 
         return fn_loss
 
+    # def flatten_augmentation():
+    #     input_arr = keras.Input((nframe*nagent, nhead))
+    #     input_rshp = layers.Reshape((nframe, nagent, nhead))(input_arr)
+    #     input_avg = tf.reduce_mean(input_rshp, axis=1)
+    #     input_fltn = layers.Reshape((nagent*nhead,))(input_avg)
+    #     return keras.models.Model(inputs=[input_arr], outputs=input_fltn)
+
     def flatten_augmentation():
-        input_arr = keras.Input((nframe*nagent, nhead))
-        input_rshp = layers.Reshape((nframe, nagent, nhead))(input_arr)
-        input_avg = tf.reduce_mean(input_rshp, axis=1)
-        input_fltn = layers.Reshape((nagent*nhead,))(input_avg)
-        return keras.models.Model(inputs=[input_arr], outputs=input_fltn)
+        return layers.Flatten()
 
     def model_builder_colon(hp1, hp2, hp3, reg, num_layers):
         model = keras.Sequential()

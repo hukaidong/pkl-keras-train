@@ -1,19 +1,37 @@
 #!/bin/bash
 
-#SBATCH --job-name=ind-kaidong
+#SBATCH --job-name=batch-kaidong
 #SBATCH --output=job.%j.out
-#SBATCH --ntasks=2
+#SBATCH --ntasks=8
 #SBATCH --nodes=1
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
-#SBATCH --constraint="rtx2080"
- 
+#SBATCH --gres=gpu:4
+#SBATCH --constraint="rtx2080|gtx1080ti"
+
 module load singularity || true
 
+rm -rf ./results/keras/hypetuner
 sif_path=$HOME/sifs/keras.sif
 py_path=/opt/conda/envs/tf2/bin/python3
+cudas=$CUDA_VISIBLE_DEVICES
+echo "cudas: $cudas"
+
 
 set -xe
+export CUDA_VISIBLE_DEVICES=
+export PYTHONPATH=$HOME/keras_train
+export KERASTUNER_ORACLE_IP="127.0.0.1"
+export KERASTUNER_ORACLE_PORT="8763"
 
-export PYTHONPATH=`pwd`/keras_train
-singularity exec --nv $sif_path $py_path keras_train.py
+# chief
+export KERASTUNER_TUNER_ID="chief"
+singularity exec --nv $sif_path $py_path keras_train.py >job.$SLURM_JOB_ID.chief.log 2>&1 &
+
+for i in ${cudas//,/ }
+do
+export CUDA_VISIBLE_DEVICES=$i
+export KERASTUNER_TUNER_ID="tuner"$i
+singularity exec --nv $sif_path $py_path keras_train.py >job.$SLURM_JOB_ID.worker$i.log 2>&1 &
+done
+
+wait
