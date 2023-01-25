@@ -1,6 +1,8 @@
+import json
 import pickle
 import numpy as np
 import tensorflow as tf
+from pathlib import Path
 
 
 def custom_dataset(nframe=18, nagent=30, nhead=8):
@@ -13,6 +15,20 @@ def custom_dataset(nframe=18, nagent=30, nhead=8):
             raw_latent = raw_latent.reshape(nframe, raw_nagent, nhead)
             latent = np.pad(raw_latent, ((0, 0), (0, nagent_max - raw_nagent), (0, 0)))
             self.latent = latent.reshape(-1, nhead)
+
+        def __str__(self):
+            return f"name: {self.name}, latent shape: {self.latent.shape}"
+
+    class JsonLatent:
+        def __init__(self, arr, nframe=nframe, nagent_max=nagent):
+            self.name = arr['seq_name']
+            self.param = np.asarray(arr['env_param'])
+            raw_latent = np.asarray(arr['context_v'])
+            raw_nagent = raw_latent.shape[0] // nframe
+            raw_latent = raw_latent.reshape(nframe, raw_nagent, nhead)
+            latent = np.pad(raw_latent, ((0, 0), (0, nagent_max - raw_nagent), (0, 0)))
+            self.latent = latent.reshape(-1, nhead)
+            self.zlatent = np.asarray(arr['z']).T.reshape((-1, 1))
 
         def __str__(self):
             return f"name: {self.name}, latent shape: {self.latent.shape}"
@@ -40,13 +56,18 @@ def custom_dataset(nframe=18, nagent=30, nhead=8):
             # Use buffered prefetching on all datasets.
             return ds.prefetch(buffer_size=AUTOTUNE)
 
-    return PickledLatent, TrainDataset
+    return [PickledLatent, JsonLatent], TrainDataset
 
 
 def load_dataset(filename, nframe, nagent, nhead, batch_size=128):
-    PickledLatent, TrainDataset = custom_dataset(nframe=nframe, nagent=nagent, nhead=nhead)
-    with open(filename, "rb") as f:
-        obj = pickle.load(f)
+    (PickledLatent, JsonLatent), TrainDataset = custom_dataset(nframe=nframe, nagent=nagent, nhead=nhead)
+    if Path(filename).suffix == '.pkl':
+        with open(filename, "rb") as f:
+            obj = pickle.load(f)
+        pobj = list(map(PickledLatent, obj))
+    elif Path(filename).suffix == '.json':
+        with open(filename, "rb") as f:
+            obj = [json.loads(line) for line in f.readlines()]
+        pobj = list(map(JsonLatent, obj))
 
-    pobj = list(map(PickledLatent, obj))
     return TrainDataset(pobj, batch_size=batch_size)
