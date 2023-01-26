@@ -2,13 +2,7 @@ import keras_custom.prelude
 import keras_tuner
 import sys
 from load_data import load_dataset
-from model_builder import custom_builder, set_reg_fragment
-
-from tensorflow.keras import callbacks
-
-class CustomCallback(callbacks.Callback):
-    def on_epoch_begin(self, epoch, logs=None):
-        set_reg_fragment((epoch + 1) / 300.0)
+from model_builder import custom_builder
 
 
 if __name__ == "__main__":
