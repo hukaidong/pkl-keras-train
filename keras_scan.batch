@@ -2,10 +2,10 @@
 
 #SBATCH --job-name=batch-kaidong
 #SBATCH --output=job.%j.out
-#SBATCH --ntasks=8
+#SBATCH --ntasks=10
 #SBATCH --nodes=1
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:8
 #SBATCH --constraint="rtx2080|gtx1080ti"
 
 module load singularity || true
@@ -23,15 +23,18 @@ export PYTHONPATH=$HOME/keras_train
 export KERASTUNER_ORACLE_IP="127.0.0.1"
 export KERASTUNER_ORACLE_PORT="8763"
 
+rm -rf logs
+mkdir -p logs
+
 # chief
 export KERASTUNER_TUNER_ID="chief"
-singularity exec --nv $sif_path $py_path keras_train.py >job.$SLURM_JOB_ID.chief.log 2>&1 &
+singularity exec --nv $sif_path $py_path keras_scan.py train.json val.json > logs/job.$SLURM_JOB_ID.chief.log 2>&1 &
 
 for i in ${cudas//,/ }
 do
 export CUDA_VISIBLE_DEVICES=$i
 export KERASTUNER_TUNER_ID="tuner"$i
-singularity exec --nv $sif_path $py_path keras_train.py >job.$SLURM_JOB_ID.worker$i.log 2>&1 &
+singularity exec --nv $sif_path $py_path keras_scan.py train.json val.json > logs/job.$SLURM_JOB_ID.worker$i.log 2>&1 &
 done
 
 wait

@@ -24,7 +24,8 @@ if __name__ == "__main__":
     ns = {"nframe": 14, "nagent": 2, "nhead": 8}
     model_builder = custom_builder(**ns)
 
-    tuner = keras_tuner.Hyperband(model_builder, objective="val_loss", max_epochs=500, hyperband_iterations=3)
+    obj = keras_tuner.Objective("val_fn_loss", direction='min')
+    tuner = keras_tuner.Hyperband(model_builder, objective=obj, max_epochs=500, hyperband_iterations=3)
     sample_model = model_builder(keras_tuner.HyperParameters())
     print(sample_model.summary())
     l2_schedule_callback = CustomCallback()
