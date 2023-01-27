@@ -3,7 +3,7 @@ require "json"
 all_trails = Dir['**/trial.json']
 
 datas = all_trails.map do |file|
-  trail = JSON.load_file(file)
+  trail = JSON.load_file(file, allow_nan: true)
   data = {}
   data["trial_id"] = trail['trial_id']
   data.update(trail["hyperparameters"]["values"])
