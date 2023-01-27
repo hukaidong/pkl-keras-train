@@ -15,5 +15,5 @@ class SamplingLayer(layers.Layer):
         dim = tf.shape(z_mean)[1]
         epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
         z = z_mean + tf.exp(0.5 * z_log_var) * epsilon
-        self.add_loss(self.loss_weight * tf.reduce_mean(z))
+        self.add_loss(self.loss_weight * tf.reduce_mean(tf.square(z)))
         return z
