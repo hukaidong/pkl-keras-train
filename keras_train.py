@@ -1,14 +1,11 @@
+import os
 import sys
 import keras_custom.prelude
 import keras_tuner
 from load_data import load_dataset
-from model_builder import custom_builder, set_reg_fragment
+from model_builder import custom_builder
 
 from tensorflow.keras import callbacks
-
-class CustomCallback(callbacks.Callback):
-    def on_epoch_begin(self, epoch, logs=None):
-        set_reg_fragment((epoch + 1) / 300.0)
 
 def load_parameter_from_tuner():
     tuner = keras_tuner.Hyperband(model_builder, objective="val_loss")
@@ -17,15 +14,15 @@ def load_parameter_from_tuner():
 
 
 if __name__ == "__main__":
-    target = sys.argv[1]
-    target_val = sys.argv[2]
+    os.chdir(sys.argv[1])
+    target = 'train.json'
+    target_val = 'val.json'
     ns = {"nframe": 14, "nagent": 2, "nhead": 8}
     train_dataset = load_dataset(target, batch_size=1024, **ns)
     val_dataset = load_dataset(target_val, batch_size=1024, **ns)
     data = train_dataset.prepare()
     val_data = val_dataset.prepare()
 
-    #l2_schedule_callback = CustomCallback()
     model_checkpoint_callback = callbacks.ModelCheckpoint(
         filepath="best_valid",
         save_weights_only=True,
@@ -34,15 +31,16 @@ if __name__ == "__main__":
         save_best_only=True)
 
     model_builder = custom_builder(**ns)
+
+    preset_parameters_keys = ('trial_id,sampling_units,prior_weight,units_1,units_2,units_3,l2_reg,num_layers,'
+                              'learning_rate').split(',')
+    preset_parameters_vals = '2438,256,1.0,1024,512,512,0.0001,4,2.0e-06'.split(',')
+    preset_parameters_dict = {key: val for key, val in zip(preset_parameters_keys, preset_parameters_vals)}
+
     hp = keras_tuner.HyperParameters()
-    hp.values['sampling_units'] = 256
-    hp.values['unit-1'] = 512
-    hp.values['unit-2'] = 512
-    hp.values['unit-3'] = 512
-    hp.values['l2_reg'] = 0.001
-    hp.values['prior-weight'] = 0.01
-    hp.values['num-layers'] = 5
-    hp.values['learning_rate'] = 2e-6
+    hp.values.update(preset_parameters_dict)
+
     model = model_builder(hp)
     model.fit(data, validation_data=val_data, epochs=300, verbose=1, callbacks=[model_checkpoint_callback])
     model.save_weights("result_model")
+    print(sys.argv[1], "training complete")
