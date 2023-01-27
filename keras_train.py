@@ -35,7 +35,7 @@ if __name__ == "__main__":
     preset_parameters_keys = ('trial_id,sampling_units,prior_weight,units_1,units_2,units_3,l2_reg,num_layers,'
                               'learning_rate').split(',')
     preset_parameters_vals = '2438,256,1.0,1024,512,512,0.0001,4,2.0e-06'.split(',')
-    preset_parameters_dict = {key: val for key, val in zip(preset_parameters_keys, preset_parameters_vals)}
+    preset_parameters_dict = {key: eval(val) for key, val in zip(preset_parameters_keys, preset_parameters_vals)}
 
     hp = keras_tuner.HyperParameters()
     hp.values.update(preset_parameters_dict)

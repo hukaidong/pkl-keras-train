@@ -20,10 +20,11 @@ echo "cudas: $cudas"
 set -xe
 export CUDA_VISIBLE_DEVICES=
 export PYTHONPATH=$HOME/keras_train
-export KERASTUNER_ORACLE_IP="127.0.0.1"
+export KERASTUNER_ORACLE_IP="0.0.0.0"
 export KERASTUNER_ORACLE_PORT="8763"
+hostname > host.socket
 
-rm -rf logs
+#rm -rf logs
 mkdir -p logs
 
 # chief
@@ -33,7 +34,7 @@ singularity exec --nv $sif_path $py_path keras_scan.py train.json val.json > log
 for i in ${cudas//,/ }
 do
 export CUDA_VISIBLE_DEVICES=$i
-export KERASTUNER_TUNER_ID="tuner"$i
+export KERASTUNER_TUNER_ID="tuner-"$HOSTNAME"-"$i
 singularity exec --nv $sif_path $py_path keras_scan.py train.json val.json > logs/job.$SLURM_JOB_ID.worker$i.log 2>&1 &
 done
 
