@@ -22,5 +22,4 @@ if __name__ == "__main__":
     tuner = keras_tuner.Hyperband(model_builder, objective=obj, max_epochs=500, hyperband_iterations=3)
     sample_model = model_builder(keras_tuner.HyperParameters())
     print(sample_model.summary())
-    l2_schedule_callback = CustomCallback()
-    tuner.search(data, validation_data=val_data, epochs=300, verbose=1, callbacks=[l2_schedule_callback])
+    tuner.search(data, validation_data=val_data, epochs=300, verbose=1)

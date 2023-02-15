@@ -10,11 +10,11 @@ class DecoderModel(keras.Model):
     def __init__(self, hp, input_shape):
         super(DecoderModel, self).__init__()
         self.nlp = None
-        hp1 = hp.Choice('units-1', values=[512, 1024])
-        hp2 = hp.Choice('units-2', values=[512, 1024])
-        hp3 = hp.Choice('units-3', values=[512, 1024])
-        reg_base = hp.Choice('l2-reg', values=[1e-2, 1e-4, 0.0])
-        num_layers = hp.Choice('num-layers', values=[3, 4, 5, 6])
+        hp1 = hp.Choice('units_1', values=[512, 1024])
+        hp2 = hp.Choice('units_2', values=[512, 1024])
+        hp3 = hp.Choice('units_3', values=[512, 1024])
+        reg_base = hp.Choice('l2_reg', values=[1e-2, 1e-4, 0.0])
+        num_layers = hp.Choice('num_layers', values=[3, 4, 5, 6])
         self.latent_shape = input_shape
         self.parameter_size = 9
         self.nlp_build(hp1, hp2, hp3, reg_base, num_layers)

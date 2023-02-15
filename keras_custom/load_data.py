@@ -59,7 +59,7 @@ def custom_dataset(nframe=18, nagent=30, nhead=8):
     return [PickledLatent, JsonLatent], TrainDataset
 
 
-def load_dataset(filename, nframe, nagent, nhead, batch_size=128):
+def load_dataset(filename, nframe, nagent, nhead, batch_size=128, len_out={}):
     (PickledLatent, JsonLatent), TrainDataset = custom_dataset(nframe=nframe, nagent=nagent, nhead=nhead)
     if Path(filename).suffix == '.pkl':
         with open(filename, "rb") as f:
@@ -69,5 +69,7 @@ def load_dataset(filename, nframe, nagent, nhead, batch_size=128):
         with open(filename, "rb") as f:
             obj = [json.loads(line) for line in f.readlines()]
         pobj = list(map(JsonLatent, obj))
+
+    len_out['len_out'] = len(pobj)
 
     return TrainDataset(pobj, batch_size=batch_size)

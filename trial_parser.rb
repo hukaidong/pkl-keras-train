@@ -1,8 +1,10 @@
 require 'csv'
 require "json"
-all_trails = Dir['**/trial.json']
+require 'tqdm'
 
-datas = all_trails.map do |file|
+all_trails = Dir['untitled_project/**/trial.json']
+
+datas = all_trails.sort.each.tqdm.map do |file|
   trail = JSON.load_file(file, allow_nan: true)
   data = {}
   data["trial_id"] = trail['trial_id']
@@ -17,5 +19,5 @@ end
 
 CSV.open("trials.csv", "w") do |csv|
   csv << datas.first.keys
-  datas.each {|d| csv << d.values}
+  datas.sort_by{|x|x['trial_id']}.each {|d| csv << d.values}
 end

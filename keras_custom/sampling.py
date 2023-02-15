@@ -6,7 +6,7 @@ class SamplingLayer(layers.Layer):
     """Uses (z_mean, z_log_var) to sample z, the vector encoding a digit."""
     def __init__(self, hp, **kwargs):
         super(SamplingLayer, self).__init__(**kwargs)
-        prior_weight = hp.Choice('prior-weight', values=[1.0, 0.3, 0.1])
+        prior_weight = hp.Choice('prior_weight', values=[1.0, 0.3, 0.1])
         self.loss_weight = prior_weight
 
     def call(self, inputs, **kwargs):
