@@ -50,11 +50,6 @@ if __name__ == "__main__":
 
     h = model.fit(data,
                   validation_data=val_data,
-                  epochs=50,
-                  verbose=2)
-
-    h = model.fit(data,
-                  validation_data=val_data,
                   epochs=int(500 * data_mul),
                   verbose=2,
                   callbacks=[early_stopping_callback()])
