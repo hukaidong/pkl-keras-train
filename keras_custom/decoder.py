@@ -16,7 +16,7 @@ class DecoderModel(keras.Model):
         reg_base = hp.Choice('l2_reg', values=[1e-2, 1e-4, 0.0])
         num_layers = hp.Choice('num_layers', values=[3, 4, 5, 6])
         self.latent_shape = input_shape
-        self.parameter_size = 9
+        self.parameter_size = 21
         self.nlp_build(hp1, hp2, hp3, reg_base, num_layers)
 
     def get_output_shape(self):
