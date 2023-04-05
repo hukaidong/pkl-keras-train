@@ -16,7 +16,7 @@ class DecoderModel(keras.Model):
         reg_base = hp.Choice('l2_reg', values=[1e-2, 1e-4, 0.0])
         num_layers = hp.Choice('num_layers', values=[3, 4, 5, 6])
         self.latent_shape = input_shape
-        self.parameter_size = 9
+        self.parameter_size = 21
         self.nlp_build(hp1, hp2, hp3, reg_base, num_layers)
 
     def get_output_shape(self):
@@ -35,12 +35,16 @@ class DecoderModel(keras.Model):
 
         model = keras.Sequential()
         model.add(layers.Input(shape=self.latent_shape))
-        model.add(layers.Dense(hp1, **dense_opts))
-        if num_layers >= 6: model.add(layers.Dense(hp1, **dense_opts))
-        model.add(layers.Dense(hp2, **dense_opts))
-        if num_layers >= 5: model.add(layers.Dense(hp2, **dense_opts))
-        model.add(layers.Dense(hp3, **dense_opts))
-        if num_layers >= 4: model.add(layers.Dense(hp3, **dense_opts))
+        def add_dense(size):
+            model.add(layers.Dense(size, **dense_opts))
+        #    model.add(layers.Dropout(0.5))
+        add_dense(hp1)
+        if num_layers >= 6: add_dense(hp1)
+        add_dense(hp2)
+        if num_layers >= 5: add_dense(hp2)
+        add_dense(hp3)
+        if num_layers >= 4: add_dense(hp3)
+
         model.add(layers.Dense(self.parameter_size))
         self.nlp = model
 
