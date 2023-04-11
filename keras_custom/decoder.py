@@ -1,3 +1,5 @@
+import os.path
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -16,8 +18,21 @@ class DecoderModel(keras.Model):
         reg_base = hp.Choice('l2_reg', values=[1e-2, 1e-4, 0.0])
         num_layers = hp.Choice('num_layers', values=[3, 4, 5, 6])
         self.latent_shape = input_shape
-        self.parameter_size = 21
+        self.load_parameter_size()
         self.nlp_build(hp1, hp2, hp3, reg_base, num_layers)
+
+
+    # Parameter size will be read from model.cfg under pwd
+    def load_parameter_size(self):
+        if os.path.exists('model.cfg'):
+            with open('model.cfg', 'r') as f:
+                for line in f:
+                    if line.startswith('parameter_size'):
+                        self.parameter_size = int(line.split('=')[1].strip())
+                        break
+        else:
+            raise FileNotFoundError('model.cfg not found')
+
 
     def get_output_shape(self):
         return self.parameter_size
