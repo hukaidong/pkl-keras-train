@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse
 import keras_custom.prelude
 from load_data import load_dataset
 from model_builder import custom_builder
@@ -21,6 +22,14 @@ def early_stopping_callback():
                                    monitor='val_fn_rmse',
                                    mode='min')
 
+parser = argparse.ArgumentParser(
+                prog='ProgramName',
+                description='What the program does',
+                epilog='Text at the bottom of help')
+
+parser.add_argument('filename')           # positional argument
+parser.add_argument('--fast', action='store_true')      # option that takes a value
+args = parser.parse_args()
 
 if __name__ == "__main__":
     target = 'train.json'
@@ -48,11 +57,18 @@ if __name__ == "__main__":
         print('restore trained model')
         model.load_weights('result_model')
 
-    h = model.fit(data,
-                  validation_data=val_data,
-                  epochs=int(500 * data_mul),
-                  verbose=2,
-                  callbacks=[early_stopping_callback()])
+    if not args.fast:  # fast is for debug and run no training
+        h = model.fit(data,
+                      validation_data=val_data,
+                      epochs=50,
+                      verbose=2,
+                      )
+
+        h = model.fit(data,
+                      validation_data=val_data,
+                      epochs=int(500 * data_mul),
+                      verbose=2,
+                      callbacks=[early_stopping_callback()])
     model.save_weights("result_model")
 
     print(sys.argv[1], "training complete")
