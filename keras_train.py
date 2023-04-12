@@ -1,6 +1,5 @@
 import os
 import sys
-import argparse
 import keras_custom.prelude
 from load_data import load_dataset
 from model_builder import custom_builder
@@ -22,21 +21,22 @@ def early_stopping_callback():
                                    monitor='val_fn_rmse',
                                    mode='min')
 
-parser = argparse.ArgumentParser(
-                prog='ProgramName',
-                description='What the program does',
-                epilog='Text at the bottom of help')
-
-parser.add_argument('filename')           # positional argument
-parser.add_argument('--fast', action='store_true')      # option that takes a value
-args = parser.parse_args()
 
 if __name__ == "__main__":
+    os.chdir(sys.argv[1])
+
+    config_dict = {}
+    with open('model.cfg', 'r') as f:
+        for line in f:
+            if line.startswith('#'):
+                continue
+            key, value = line.split('=')
+            config_dict[key.strip()] = value.strip()
+
     target = 'train.json'
     target_val = 'val.json'
-    ns = {"nframe": 14, "nagent": 2, "nhead": 8}
 
-    os.chdir(sys.argv[1])
+    ns = {"nframe": 14, "nagent": int(config_dict['nagent']), "nhead": 8}
 
     model_builder = custom_builder(**ns)
     hp = manual_set_parameter(model_builder)
@@ -57,18 +57,13 @@ if __name__ == "__main__":
         print('restore trained model')
         model.load_weights('result_model')
 
-    if not args.fast:  # fast is for debug and run no training
-        h = model.fit(data,
-                      validation_data=val_data,
-                      epochs=50,
-                      verbose=2,
-                      )
+    epochs = int(config_dict.get('epochs', 500 * data_mul))
 
-        h = model.fit(data,
-                      validation_data=val_data,
-                      epochs=int(500 * data_mul),
-                      verbose=2,
-                      callbacks=[early_stopping_callback()])
+    h = model.fit(data,
+                  validation_data=val_data,
+                  epochs=epochs,
+                  verbose=2,
+                  callbacks=[early_stopping_callback()])
     model.save_weights("result_model")
 
     print(sys.argv[1], "training complete")

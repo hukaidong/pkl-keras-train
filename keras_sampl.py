@@ -26,10 +26,20 @@ def define_parser():
 if __name__ == "__main__":
     parser = define_parser()
     args = parser.parse_args()
+    os.chdir(args.latent_dir)
+
+    config_dict = {}
+    with open('model.cfg', 'r') as f:
+        for line in f:
+            if line.startswith('#'):
+                continue
+            key, value = line.split('=')
+            config_dict[key.strip()] = value.strip()
+
     target = 'train.json'
     target_val = 'val.json'
-    ns = {"nframe": 14, "nagent": 2, "nhead": 8}
-    os.chdir(args.latent_dir)
+
+    ns = {"nframe": 14, "nagent": int(config_dict['nagent']), "nhead": 8}
 
     autoencoder_frag = {}
     model_builder = custom_builder(**ns)
