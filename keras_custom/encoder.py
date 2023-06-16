@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from keras_custom.sampling import SamplingLayer
+from keras_custom.SamplingLayer import SamplingLayer
 
 
 class EncoderModel(keras.Model):

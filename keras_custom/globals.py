@@ -1,6 +1,9 @@
 import keras_tuner
 
 
+MODULE_CFG = {}
+HYPER_PARAMS = keras_tuner.HyperParameters()
+
 def init():
     global MODULE_CFG
     global HYPER_PARAMS

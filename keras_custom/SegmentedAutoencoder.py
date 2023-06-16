@@ -4,6 +4,7 @@ from keras_custom.globals import MODULE_CFG, HYPER_PARAMS, set_hyper_params
 from keras_custom.encoder import EncoderModel
 from keras_custom.decoder import DecoderModel
 from keras_custom.PredictionLosses import loss_dict as losses
+from keras_custom.SegmentedPoolingEncoder import SegmentedPoolingEncoderModel
 
 
 def hp_tuning_builder(hp_):
@@ -22,11 +23,10 @@ def register_hyper_params():
 # with hp_tuning_builder
 def custom_builder(hp, autoencoder_fragment_out=None):
     input_data = tf.keras.Input(shape=(None, MODULE_CFG['nelem']), ragged=True)
-    encoder = EncoderModel(hp, input_shape=(MODULE_CFG['nelem'],))
+    encoder = SegmentedPoolingEncoderModel(hp)
     decoder = DecoderModel(hp, input_shape=encoder.get_output_shape())
-    latents = tf.keras.layers.TimeDistributed(encoder)(input_data)
-    avg_latents = tf.reduce_mean(latents, axis=1)
-    outputs = decoder(avg_latents)
+    latent = encoder(input_data)
+    outputs = decoder(latent)
     hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-5, 2e-6])
 
     model = tf.keras.models.Model(inputs=[input_data], outputs=outputs)
