@@ -17,5 +17,18 @@ except RuntimeError as e:
     print(e)
 
 
+import keras_custom.globals
+keras_custom.globals.init()
+
+def init_module_cfg():
+    with open('model.cfg', 'r') as f:
+        for line in f:
+            if line.startswith('#'):
+                continue
+            key, value = line.split('=')
+            keras_custom.globals.MODULE_CFG[key.strip()] = eval(value.strip())
+
+
 def unused():
     pass
+
