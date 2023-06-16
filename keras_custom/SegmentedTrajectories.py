@@ -1,6 +1,7 @@
 import pandas
 import numpy
 import tensorflow as tf
+import os
 
 from keras_custom.globals import MODULE_CFG
 
@@ -25,6 +26,7 @@ def prepare_slice(dataframe):
 
 class SegmentedTrajectories:
     def __init__(self, json_path):
+        assert os.path.exists(json_path)
         df = pandas.read_json(json_path, lines=True)
         df.rename(columns={'context_v': 'v', 'env_param': 'e'}, inplace=True)
         df['v'] = df['v'].apply(processing_v)

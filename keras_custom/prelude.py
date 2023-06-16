@@ -17,16 +17,13 @@ except RuntimeError as e:
     print(e)
 
 
+from yaml import load, Loader
 import keras_custom.globals
 keras_custom.globals.init()
 
 def init_module_cfg():
-    with open('model.cfg', 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                continue
-            key, value = line.split('=')
-            keras_custom.globals.MODULE_CFG[key.strip()] = eval(value.strip())
+    with open('model.yml', 'r') as f:
+        keras_custom.globals.MODULE_CFG.update(load(f, Loader=Loader))
 
 
 def unused():

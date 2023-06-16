@@ -26,7 +26,7 @@ if __name__ == "__main__":
     register_hyper_params()
     update_hp_parameters(HYPER_PARAMS)
 
-    model = custom_builder()
+    model = custom_builder(HYPER_PARAMS)
 
     if False and os.path.exists('result_model.index'):
         print('restore trained model')

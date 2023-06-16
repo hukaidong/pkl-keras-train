@@ -3,6 +3,7 @@ import os.path
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from keras_custom.globals import MODULE_CFG
 
 
 class DecoderModel(keras.Model):
@@ -24,14 +25,7 @@ class DecoderModel(keras.Model):
 
     # Parameter size will be read from model.cfg under pwd
     def load_parameter_size(self):
-        if os.path.exists('model.cfg'):
-            with open('model.cfg', 'r') as f:
-                for line in f:
-                    if line.startswith('parameter_size'):
-                        self.parameter_size = int(line.split('=')[1].strip())
-                        break
-        else:
-            raise FileNotFoundError('model.cfg not found')
+        self.parameter_size = MODULE_CFG['parameter_size']
 
 
     def get_output_shape(self):

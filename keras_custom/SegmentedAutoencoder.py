@@ -10,10 +10,10 @@ from keras_custom.SegmentedPoolingEncoder import SegmentedPoolingEncoderModel
 def hp_tuning_builder(hp_):
     set_hyper_params(hp_)
 
-    return custom_builder()
+    return custom_builder(HYPER_PARAMS)
 
 def register_hyper_params():
-    custom_builder()
+    custom_builder(HYPER_PARAMS)
 
 
 # custom_builder is the function that will be called by keras tuner
