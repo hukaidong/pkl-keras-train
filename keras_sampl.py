@@ -1,12 +1,14 @@
 import os
 import sys
-import keras_custom.prelude
 import numpy as np
 import argparse
-from load_data import load_dataset
-from model_builder import custom_builder
 
-from keras_hyper import manual_set_parameter
+from keras_custom.prelude import init_module_cfg
+from keras_custom.globals import MODULE_CFG, HYPER_PARAMS
+from keras_tuner import HyperParameters
+from keras_hyper import update_hp_parameters
+from SegmentedTrajectories import SegmentedTrajectories
+from SegmentedAutoencoder import custom_builder, register_hyper_params
 
 def define_parser():
     parser = argparse.ArgumentParser()
@@ -26,34 +28,28 @@ def define_parser():
 if __name__ == "__main__":
     parser = define_parser()
     args = parser.parse_args()
-    os.chdir(args.latent_dir)
+    if not os.getenv('KERAS_DEVELOP'):
+        os.chdir(args.latent_dir)
 
-    config_dict = {}
-    with open('model.cfg', 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                continue
-            key, value = line.split('=')
-            config_dict[key.strip()] = value.strip()
+    init_module_cfg()
 
     target = 'train.json'
     target_val = 'val.json'
 
-    ns = {"nframe": 14, "nagent": int(config_dict['nagent']), "nhead": 8}
+    train_dataset = SegmentedTrajectories(target)
+    val_dataset = SegmentedTrajectories(target_val)
+    data = train_dataset.prepare(batch_size=256)
+    val_data = val_dataset.prepare(batch_size=256)
 
     autoencoder_frag = {}
-    model_builder = custom_builder(**ns)
-    hp = manual_set_parameter(model_builder)
-    model = model_builder(hp, autoencoder_fragment_out=autoencoder_frag)
+    register_hyper_params()
+    update_hp_parameters(HYPER_PARAMS)
+
+    model = custom_builder(HYPER_PARAMS, autoencoder_fragment_out=autoencoder_frag)
     encoder, decoder = autoencoder_frag['autoencoder_fragment_out']
     model.load_weights("result_model").expect_partial()
 
-    train_dataset = load_dataset(target, batch_size=1024, **ns)
-    val_dataset = load_dataset(target_val, batch_size=1024, **ns)
-    data = train_dataset.prepare()
-    val_data = val_dataset.prepare()
-
-    random_latent = np.random.normal(size=(args.count, hp.values['sampling_units']))
+    random_latent = np.random.normal(size=(args.count, HYPER_PARAMS.values['sampling_units']))
     sample_param = decoder(random_latent).numpy()
     sample_param = (sample_param+1)/2
 

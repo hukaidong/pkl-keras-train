@@ -18,8 +18,8 @@ if __name__ == "__main__":
     target_val = 'val.json'
     train_dataset = SegmentedTrajectories(target)
     val_dataset = SegmentedTrajectories(target_val)
-    data = train_dataset.prepare(batch_size=256)
-    val_data = val_dataset.prepare(batch_size=256)
+    data = train_dataset.prepare(batch_size=1024)
+    val_data = val_dataset.prepare(batch_size=1024)
 
     model_builder = custom_builder
     obj = keras_tuner.Objective("val_fn_rmse", direction='min')

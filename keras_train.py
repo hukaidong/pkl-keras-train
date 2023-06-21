@@ -19,10 +19,9 @@ if __name__ == "__main__":
 
     train_dataset = SegmentedTrajectories(target)
     val_dataset = SegmentedTrajectories(target_val)
-    data = train_dataset.prepare(batch_size=256)
-    val_data = val_dataset.prepare(batch_size=256)
+    data = train_dataset.prepare(batch_size=1024)
+    val_data = val_dataset.prepare(batch_size=1024)
 
-    HYPER_PARAMS = keras_tuner.HyperParameters()
     register_hyper_params()
     update_hp_parameters(HYPER_PARAMS)
 

@@ -39,9 +39,10 @@ class SegmentedTrajectories:
     def prepare(self, shuffle=False, batch_size=256):
         AUTOTUNE = tf.data.AUTOTUNE
         ds = self.dataset
+        ds = ds.repeat(10)
 
         if shuffle:
-            ds = ds.shuffle(1000)
+            ds = ds.shuffle(5000)
 
         ds = ds.batch(batch_size)
 
