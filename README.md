@@ -9,9 +9,9 @@ tensorflow keras-tuner numpy pandas matplotlib
 # Recommended environment
 
 ```Bash
-conda create -n tf2 python=3.9 tensorflow-gpu numpy=1.20.3 pandas=1.5.2
+conda create -n tf2 python=3.9 tensorflow-gpu=2.4.1 numpy=1.19.5 pandas=1.5.2
 conda activate tf2
-pip install keras-tuner
+pip install keras-tuner==1.3.5
 pip install gast==0.3.3
 conda deactivate
 ```
