@@ -10,6 +10,7 @@ import tensorflow
 
 gpus = tensorflow.config.experimental.list_physical_devices('GPU')
 try:
+    print("Num GPUs Available: ", len(gpus), file=sys.stderr)
     for gpu in gpus:
         tensorflow.config.experimental.set_memory_growth(gpu, True)
 
