@@ -18,7 +18,7 @@ def processing_e(e):
 
 def prepare_slice(dataframe):
     v = tf.RaggedTensor.from_value_rowids(numpy.stack(dataframe['v']), value_rowids=dataframe['gid'])
-    e = dataframe.groupby('gid').agg({'e': 'first'})
+    e = dataframe.groupby('gid', sort=False).agg({'e': 'first'})
     # Pandas surrounds the values with an extra array object, so we need to remove it.
     e = numpy.stack([x[0] for x in e.values])
     return v, e

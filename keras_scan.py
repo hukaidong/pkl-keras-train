@@ -1,5 +1,6 @@
-import keras_custom.prelude
 from keras_custom.prelude import init_module_cfg
+from keras_custom.globals import MODULE_CFG, HYPER_PARAMS
+
 from SegmentedTrajectories import SegmentedTrajectories
 from SegmentedAutoencoder import hp_tuning_builder, custom_builder
 
