@@ -11,11 +11,10 @@
 module load singularity || true
 
 rm -rf ./results/keras/hypetuner
-sif_path=$HOME/sifs/keras.sif
-py_path=/opt/conda/envs/tf2/bin/python3
+sif_path=$HOME/sifs/keras-230704.sif
+py_path=python3
 cudas=$CUDA_VISIBLE_DEVICES
 echo "cudas: $cudas"
-
 
 set -xe
 export CUDA_VISIBLE_DEVICES=
