@@ -11,6 +11,6 @@ EOT
 
 COPY requirements /pkl-keras-train/requirements
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked <<-EOT
-    pip install --user -r /pkl-keras-train/requirements/requirements.txt
-    pip install --user -r /pkl-keras-train/requirements/development.txt
+    pip install -r /pkl-keras-train/requirements/requirements.txt
+    pip install -r /pkl-keras-train/requirements/development.txt
 EOT
