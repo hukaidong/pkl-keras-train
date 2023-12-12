@@ -62,8 +62,9 @@ def reconstruct(model, v, q):
     result_data = []
     for grp, scenario in per_agent_df.groupby('s'):
         params = scenario.groupby('aid').agg({"p":pandas.DataFrame.sample})
-        result = params['p'].explode().tolist()
-        result_data.append({'s': grp, 'p': result})
+        result = params['p'].explode().to_numpy() * 0.5 + 0.5
+        result = np.clip(result, 0, 1)
+        result_data.append({'s': grp, 'p': result.tolist()})
     result_df = pandas.DataFrame(result_data)
     return result_df
 
