@@ -43,6 +43,15 @@ def get_model():
     model.load_weights('result_model')
     return model
 
+def get_ablation_model():
+    from SimplePoolingDNN import custom_builder
+
+    model = custom_builder()
+    model.load_weights('plain_result_model')
+    return model
+
+
+
 def reconstruct(model, v, q):
     from keras_custom.globals import MODULE_CFG
 
@@ -63,7 +72,7 @@ def reconstruct(model, v, q):
     for grp, scenario in per_agent_df.groupby('s'):
         params = scenario.groupby('aid').agg({"p":pandas.DataFrame.sample})
         result = params['p'].explode().to_numpy() * 0.5 + 0.5
-        result = np.clip(result, 0, 1)
+        result = numpy.clip(result, 0, 1)
         result_data.append({'s': grp, 'p': result.tolist()})
     result_df = pandas.DataFrame(result_data)
     return result_df
@@ -77,12 +86,19 @@ if __name__ == '__main__':
                         help='directory of the model')
     parser.add_argument('-o', '--output', type=str, required=True,
                         help='output json file')
+    parser.add_argument('-A', '--ablation', action='store_true',
+                        help='use ablation model')
+
     args = parser.parse_args()
 
     os.chdir(args.direrctory)
     init_module_cfg()
     df = read_data(args.input)
     v, q = prepare_reconstruct_set(df)
-    model = get_model()
+    if args.ablation:
+        model = get_ablation_model()
+    else:
+        model = get_model()
+
     result = reconstruct(model, v, q)
     result.to_json(args.output, orient='records', lines=True)
